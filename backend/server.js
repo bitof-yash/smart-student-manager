@@ -11,7 +11,7 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5050;
 const JWT_SECRET = process.env.JWT_SECRET || 'studyos-dev-secret';
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/studyos';
+const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/studyos';
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 const DAILY_TIMETABLE_SCAN_LIMIT = 5;
 let mongoConnectPromise = null;
