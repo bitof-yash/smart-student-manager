@@ -14,6 +14,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'studyos-dev-secret';
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/studyos';
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 const DAILY_TIMETABLE_SCAN_LIMIT = 5;
+let mongoConnectPromise = null;
 
 const colors = ['#2383e2', '#e03e3e', '#0f7b6c', '#dfab01', '#9b59b6', '#e67e22', '#1abc9c', '#e74c3c'];
 
@@ -239,6 +240,31 @@ function cleanGeminiJson(raw = '') {
   }
 }
 
+async function connectToDatabase() {
+  if (mongoose.connection.readyState === 1) {
+    return mongoose.connection;
+  }
+
+  if (!mongoConnectPromise) {
+    mongoConnectPromise = mongoose.connect(MONGODB_URI).catch((error) => {
+      mongoConnectPromise = null;
+      throw error;
+    });
+  }
+
+  await mongoConnectPromise;
+  return mongoose.connection;
+}
+
+app.use(async (_req, _res, next) => {
+  try {
+    await connectToDatabase();
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.get('/api/health', (_req, res) => {
   res.json({ ok: true, service: 'studyos-api' });
 });
@@ -402,14 +428,23 @@ app.get('/', (_req, res) => {
   res.sendFile(path.resolve(__dirname, '..', 'public', 'index.html'));
 });
 
+app.use((error, _req, res, _next) => {
+  console.error('Unhandled server error:', error);
+  res.status(500).json({ message: 'Internal server error' });
+});
+
 async function start() {
-  await mongoose.connect(MONGODB_URI);
+  await connectToDatabase();
   app.listen(PORT, () => {
     console.log(`studyOS server running on http://localhost:${PORT}`);
   });
 }
 
-start().catch((error) => {
-  console.error('Failed to start server:', error);
-  process.exit(1);
-});
+if (require.main === module) {
+  start().catch((error) => {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  });
+}
+
+module.exports = app;
