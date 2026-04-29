@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Student Manager — App</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="css/app.css"/>
+</head>
+<body>
+
+<button class="hamburger" id="hamburger" onclick="toggleSidebar()">☰</button>
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-top">
+    <div class="workspace">
+      <div class="ws-icon">🎓</div>
+      <div>
+        <div class="ws-name">Student Manager</div>
+        <div class="ws-sub">Academic Edition</div>
+      </div>
+    </div>
+    <div class="sdivider"></div>
+    <nav class="nav">
+      <div class="nav-section">MAIN</div>
+      <div class="nav-item active" onclick="showPage('dashboard',this)"><span class="ni">⚡</span>Dashboard</div>
+      <div class="nav-item" onclick="showPage('attendance',this)"><span class="ni">📋</span>Attendance</div>
+      <div class="nav-item" onclick="showPage('tasks',this)"><span class="ni">✅</span>Tasks</div>
+      <div class="nav-item" onclick="showPage('timetable',this)"><span class="ni">🗓️</span>Timetable</div>
+      <div class="sdivider"></div>
+      <div class="nav-section">INSIGHTS</div>
+      <div class="nav-item" onclick="showPage('pomodoro',this)"><span class="ni">⏱️</span>Focus Timer</div>
+      <div class="nav-item" onclick="showPage('analytics',this)"><span class="ni">📊</span>Analytics</div>
+      <div class="nav-item" onclick="showPage('achievements',this)"><span class="ni">🏆</span>Achievements</div>
+      <div class="sdivider"></div>
+      <!-- BACK TO HOME -->
+      <div class="nav-item" onclick="window.location.href='index.html'" style="color:#d44c47;">
+        <span class="ni">🏠</span>Back to Home
+      </div>
+    </nav>
+  </div>
+  <div class="sidebar-bottom">
+    <div class="xp-block">
+      <div class="xp-top">
+        <span class="xp-label">Experience</span>
+        <span class="xp-lvl" id="levelBadge">LVL 1</span>
+      </div>
+      <div class="xp-track"><div class="xp-fill" id="xpBar" style="width:0%"></div></div>
+      <div class="xp-nums" id="xpText">0 / 100 XP</div>
+    </div>
+    <div class="streak-row"><span>🔥</span><span id="streakDisplay">0 day streak</span></div>
+  </div>
+</aside>
+
+<main class="main">
+  <header class="topbar">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <button class="btn btn-ghost btn-sm" onclick="window.location.href='index.html'">🏠 Home</button>
+      <div class="page-title" id="pageTitle">Dashboard</div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-date" id="dateDisplay"></div>
+      <div class="topbar-date" id="syncStatus">Guest mode</div>
+      <div class="topbar-date" id="authStatus">Guest mode</div>
+      <button class="btn btn-ghost btn-sm" onclick="exportData()">↓ Export</button>
+      <button class="btn btn-ghost btn-sm" id="authActionBtn" onclick="handleAuthAction()">Login</button>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-top"><span class="stat-ico">📚</span><span class="stat-lbl">Subjects</span></div><div class="stat-val" id="statSubjects">0</div></div>
+        <div class="stat-card"><div class="stat-top"><span class="stat-ico">📋</span><span class="stat-lbl">Avg Attendance</span></div><div class="stat-val" id="statAvgAtt">--%</div></div>
+        <div class="stat-card"><div class="stat-top"><span class="stat-ico">✅</span><span class="stat-lbl">Tasks Done</span></div><div class="stat-val" id="statTasksDone">0</div></div>
+        <div class="stat-card"><div class="stat-top"><span class="stat-ico">⏱️</span><span class="stat-lbl">Focus Hours</span></div><div class="stat-val" id="statFocusHours">0h</div></div>
+      </div>
+
+      <div class="dash-grid">
+        <div class="grade-card">
+          <div class="grade-eyebrow">AI GRADE PREDICTION</div>
+          <div class="grade-row">
+            <div>
+              <div class="grade-letter" id="predGrade">—</div>
+              <div class="grade-score" id="predScore">Add subjects & tasks to predict</div>
+            </div>
+            <div class="grade-conf-box">
+              <div class="gcb-label">CONFIDENCE</div>
+              <div class="gcb-val" id="predConfidence">0%</div>
+            </div>
+          </div>
+          <div class="conf-track"><div class="conf-fill" id="confBar" style="width:0%"></div></div>
+          <div class="grade-rec" id="predRecommendation"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">⚠️ Risk Alerts</div></div>
+          <div id="alertsContainer"><div class="alert alert-info"><span>ℹ️</span><div><strong>All Clear</strong><br/><small>Add subjects and tasks to start monitoring</small></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">Attendance Summary</div><button class="btn-link" onclick="showPage('attendance',null)">Manage →</button></div>
+          <div id="dashSubjectList"><div class="empty-state"><div class="es-ico">📚</div><p>No subjects added yet</p></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">Recent Tasks</div><button class="btn-link" onclick="showPage('tasks',null)">View All →</button></div>
+          <div id="recentTasks"><div class="empty-state"><div class="es-ico">📝</div><p>No tasks yet</p></div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">📊 Productivity Heatmap</div><div class="card-sub">12-week task completion history</div></div>
+          <div class="heat-legend">Less <div class="heat-cells"><div class="hc" style="background:var(--c0)"></div><div class="hc" style="background:var(--c1)"></div><div class="hc" style="background:var(--c2)"></div><div class="hc" style="background:var(--c3)"></div><div class="hc" style="background:var(--c4)"></div></div> More</div>
+        </div>
+        <div class="heatmap-months" id="heatmapMonths"></div>
+        <div class="heatmap-grid" id="heatmapGrid"></div>
+      </div>
+    </div>
+
+    <!-- ATTENDANCE -->
+    <div class="page" id="page-attendance">
+      <div class="card">
+        <div class="card-header"><div class="card-title">➕ Add Subject</div></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Subject Name</label><input type="text" id="subjectName" placeholder="e.g. Mathematics"/></div>
+          <div class="form-group"><label class="form-label">Classes Held</label><input type="number" id="subjectTotal" placeholder="0" min="0"/></div>
+          <div class="form-group"><label class="form-label">Classes Attended</label><input type="number" id="subjectAttended" placeholder="0" min="0"/></div>
+        </div>
+        <button class="btn btn-primary" onclick="addSubject()">+ Add Subject</button>
+      </div>
+      <div class="card">
+        <div class="card-header"><div><div class="card-title">📚 Your Subjects</div><div class="card-sub" id="subjectCount">0 subjects tracked</div></div></div>
+        <div id="subjectList"><div class="empty-state"><div class="es-ico">📚</div><p>No subjects added yet. Add your first subject above!</p></div></div>
+      </div>
+    </div>
+
+    <!-- TASKS -->
+    <div class="page" id="page-tasks">
+      <div class="card">
+        <div class="card-header"><div class="card-title">➕ Create Task</div></div>
+        <div class="form-row">
+          <div class="form-group" style="grid-column:span 2;"><label class="form-label">Task Title</label><input type="text" id="taskTitle" placeholder="e.g. Complete assignment..."/></div>
+          <div class="form-group"><label class="form-label">Subject</label><select id="taskSubject"><option value="">General</option></select></div>
+          <div class="form-group"><label class="form-label">Priority</label><select id="taskPriority"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option></select></div>
+          <div class="form-group"><label class="form-label">Due Date</label><input type="date" id="taskDate"/></div>
+        </div>
+        <button class="btn btn-primary" onclick="addTask()">+ Create Task</button>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📝 Task List</div>
+          <div class="filter-row">
+            <button class="filter-btn active" onclick="filterTasks('all',this)">All</button>
+            <button class="filter-btn" onclick="filterTasks('pending',this)">Pending</button>
+            <button class="filter-btn" onclick="filterTasks('completed',this)">Completed</button>
+            <button class="filter-btn" onclick="filterTasks('overdue',this)">Overdue</button>
+          </div>
+        </div>
+        <div id="taskList"><div class="empty-state"><div class="es-ico">✅</div><p>No tasks yet. Create your first task above!</p></div></div>
+      </div>
+    </div>
+
+    <!-- TIMETABLE -->
+    <div class="page" id="page-timetable">
+      <div class="card ai-card">
+        <div class="card-header">
+          <div><div class="card-title">🤖 AI Timetable Import</div><div class="card-sub">Upload a timetable photo — Gemini AI auto-fills your schedule</div></div>
+          <span class="gem-badge">Gemini Vision</span>
+        </div>
+        <div id="apiKeySection">
+          <div class="alert alert-info" style="margin-bottom:12px;"><span>🤖</span><div><strong>Server-side Gemini Enabled</strong><br/><small>Sign in to use AI extraction. Demo quota is limited per user to protect the backend API key.</small></div></div>
+        </div>
+        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('ttFileInput').click()" style="margin-top:14px;">
+          <div class="upload-ico">📷</div>
+          <div class="upload-text">Click to upload timetable image</div>
+          <div class="upload-hint">JPG, PNG, WEBP — photo of printed timetable or screenshot</div>
+          <input type="file" id="ttFileInput" accept="image/*" style="display:none" onchange="handleTimetableUpload(event)"/>
+        </div>
+        <div id="uploadPreview" style="display:none;margin-top:12px;">
+          <img id="previewImg" style="max-width:100%;max-height:220px;border-radius:var(--radius);border:1px solid var(--border);object-fit:contain;display:block;"/>
+          <div style="display:flex;gap:8px;margin-top:10px;">
+            <button class="btn btn-primary" id="extractBtn" onclick="extractTimetable()">🤖 Extract with Gemini AI</button>
+            <button class="btn btn-ghost btn-sm" onclick="clearUpload()">✕ Clear</button>
+          </div>
+        </div>
+        <div id="aiProcessing" style="display:none;margin-top:12px;">
+          <div class="proc-bar"><div class="proc-fill"></div></div>
+          <div class="proc-text" id="processingText">Sending to Gemini AI...</div>
+        </div>
+        <div id="aiResultPreview" style="display:none;margin-top:12px;"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div><div class="card-title">➕ Add Class Manually</div></div><button class="btn btn-ghost btn-sm" onclick="toggleManualForm()">+ Manual Entry</button></div>
+        <div id="manualForm" style="display:none;">
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Subject</label><select id="ttSubject"><option value="">-- Select Subject --</option></select></div>
+            <div class="form-group"><label class="form-label">Day</label><select id="ttDay"><option value="Mon">Monday</option><option value="Tue">Tuesday</option><option value="Wed">Wednesday</option><option value="Thu">Thursday</option><option value="Fri">Friday</option><option value="Sat">Saturday</option></select></div>
+            <div class="form-group"><label class="form-label">Start Time</label><input type="time" id="ttStart"/></div>
+            <div class="form-group"><label class="form-label">End Time</label><input type="time" id="ttEnd"/></div>
+            <div class="form-group"><label class="form-label">Room (optional)</label><input type="text" id="ttRoom" placeholder="e.g. A101"/></div>
+          </div>
+          <button class="btn btn-primary" onclick="addTimetableEntry()">+ Add Class</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div><div class="card-title">📅 Weekly Schedule</div><div class="card-sub" id="ttClassCount">0 classes scheduled</div></div><button class="btn btn-danger btn-sm" onclick="clearTimetable()">🗑 Clear All</button></div>
+        <div class="tt-wrapper"><div class="tt-grid" id="ttGrid"></div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">📌 Today's Classes</div></div>
+        <div id="todayClasses"><div class="empty-state"><div class="es-ico">🗓️</div><p>No classes scheduled for today</p></div></div>
+      </div>
+    </div>
+
+    <!-- POMODORO -->
+    <div class="page" id="page-pomodoro">
+      <div class="pomo-layout">
+        <div class="card pomo-main">
+          <div class="card-header" style="justify-content:center;flex-direction:column;align-items:center;gap:4px;">
+            <div class="card-title">⏱️ Focus Timer</div>
+            <div class="card-sub">Pomodoro Technique</div>
+          </div>
+          <div class="pomo-modes">
+            <button class="pomo-mode active" onclick="setPomoMode('focus',this)">Focus</button>
+            <button class="pomo-mode" onclick="setPomoMode('short',this)">Short Break</button>
+            <button class="pomo-mode" onclick="setPomoMode('long',this)">Long Break</button>
+          </div>
+          <div class="pomo-wrap">
+            <div class="pomo-ring">
+              <svg viewBox="0 0 200 200" width="180" height="180">
+                <circle class="ring-track" cx="100" cy="100" r="88"/>
+                <circle class="ring-prog" id="pomoProgress" cx="100" cy="100" r="88" stroke-dasharray="553" stroke-dashoffset="0"/>
+              </svg>
+              <div class="pomo-center">
+                <div class="pomo-time" id="pomoTime">25:00</div>
+                <div class="pomo-mode-lbl" id="pomoModeLabel">FOCUS</div>
+              </div>
+            </div>
+            <div class="pomo-btns">
+              <button class="btn btn-primary" id="pomoStartBtn" onclick="togglePomo()">▶ Start</button>
+              <button class="btn btn-ghost" onclick="resetPomo()">↺ Reset</button>
+            </div>
+            <div class="pomo-info" id="pomoSessionCount">Sessions today: 0 · Total: 0</div>
+          </div>
+        </div>
+        <div class="pomo-side">
+          <div class="card">
+            <div class="card-header"><div class="card-title">📈 Focus Stats</div></div>
+            <div class="pomo-stats-grid">
+              <div class="ps"><div class="ps-val" id="statTodaySessions">0</div><div class="ps-lbl">Today</div></div>
+              <div class="ps"><div class="ps-val" id="statWeekSessions">0</div><div class="ps-lbl">This Week</div></div>
+              <div class="ps"><div class="ps-val" id="statTotalSessions">0</div><div class="ps-lbl">Total</div></div>
+              <div class="ps"><div class="ps-val" id="statFocusTime">0h</div><div class="ps-lbl">Focus Time</div></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">💡 AI Suggestions</div></div>
+            <div id="pomoAISuggestions"><div class="alert alert-info"><span>💡</span><div><strong>Start your first session!</strong><br/><small>The AI will analyze your focus patterns after a few sessions.</small></div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANALYTICS -->
+    <div class="page" id="page-analytics">
+      <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);">
+        <div class="stat-card"><div class="stat-top"><span class="stat-ico">📈</span><span class="stat-lbl">Overall Attendance</span></div><div class="stat-val" id="anaOverallAtt">--%</div></div>
+        <div class="stat-card"><div class="stat-top"><span class="stat-ico">📋</span><span class="stat-lbl">Task Completion</span></div><div class="stat-val" id="anaTaskRate">--%</div></div>
+        <div class="stat-card"><div class="stat-top"><span class="stat-ico">⏱️</span><span class="stat-lbl">Total Focus Time</span></div><div class="stat-val" id="anaFocusTotal">0h</div></div>
+      </div>
+      <div class="charts-grid">
+        <div class="card"><div class="card-header"><div class="card-title">Attendance by Subject</div></div><div class="chart-wrap"><canvas id="attChart"></canvas></div></div>
+        <div class="card"><div class="card-header"><div class="card-title">Task Priority Breakdown</div></div><div class="chart-wrap"><canvas id="taskChart"></canvas></div></div>
+        <div class="card chart-full"><div class="card-header"><div class="card-title">Weekly Task Completion Trend</div></div><div class="chart-wrap"><canvas id="trendChart"></canvas></div></div>
+      </div>
+    </div>
+
+    <!-- ACHIEVEMENTS -->
+    <div class="page" id="page-achievements">
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">🏆 Achievements</div><div class="card-sub" id="achieveCount">0 / 8 unlocked</div></div>
+          <div style="font-size:12px;color:var(--accent);font-family:'JetBrains Mono',monospace;">+50 XP per unlock</div>
+        </div>
+        <div class="achievements-grid" id="achievementsGrid"></div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<div class="toast" id="toast">
+  <span class="toast-ico" id="toastIcon">⚡</span>
+  <div><div class="toast-ttl" id="toastTitle"></div><div class="toast-msg" id="toastBody"></div></div>
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>

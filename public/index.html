@@ -4,42 +4,37 @@
     <meta charset="UTF-8">
     <title>Smart Student Manager</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- Connect CSS -->
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
 <nav>
-    <h2>SSM</h2>
+    <h2>studyOS</h2>
     <ul>
         <li><a href="#features">Features</a></li>
         <li><a href="#preview">Preview</a></li>
-        <li><a href="#">Login</a></li>
+        <li><a href="login.html">Login</a></li>
     </ul>
 </nav>
 
 <section class="hero">
     <h1>Smart Student Task & Attendance Manager</h1>
     <p>Minimal workspace to track attendance, manage tasks, and stay focused.</p>
-    <button class="btn" onclick="showMessage()">Get Started</button>
+    <button class="btn" onclick="window.location.href='login.html'">Get Started</button>
 </section>
 
 <section class="section" id="features">
     <h2>Everything in One Place</h2>
     <p>Organize academics without stress.</p>
-
     <div class="grid">
         <div class="card">
             <h3>Attendance Tracking</h3>
             <p>Monitor subject-wise attendance in real time.</p>
         </div>
-
         <div class="card">
             <h3>Task Management</h3>
             <p>Track assignments and deadlines efficiently.</p>
         </div>
-
         <div class="card">
             <h3>Performance Insights</h3>
             <p>Understand academic progress clearly.</p>
@@ -51,23 +46,20 @@
     <div class="preview-text">
         <h2>Clean. Focused. Productive.</h2>
         <p>A distraction-free dashboard built for students.</p>
-        <button class="btn">Explore Dashboard</button>
+        <button class="btn" onclick="window.location.href='login.html'">Explore Dashboard</button>
     </div>
-
     <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71" alt="Dashboard Preview">
 </section>
 
 <section class="cta">
     <h2>Start Managing Smarter Today</h2>
-    <button class="btn">Create Account</button>
+    <button class="btn" onclick="window.location.href='login.html'">Create Account</button>
 </section>
 
 <footer>
-    © 2026 Yash Soren · Smart Student Manager
+    © 2026 Yash Soren · studyOS
 </footer>
 
-<!-- Connect JS -->
-<script src="script.js"></script>
-
+<script src="js/script.js"></script>
 </body>
 </html>

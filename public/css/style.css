@@ -12,7 +12,6 @@ body {
 }
 
 /* NAVBAR */
-
 nav {
     display: flex;
     justify-content: space-between;
@@ -22,6 +21,7 @@ nav {
     border-bottom: 1px solid #ececec;
     position: sticky;
     top: 0;
+    z-index: 100;
 }
 
 nav ul {
@@ -41,7 +41,6 @@ nav ul li a:hover {
 }
 
 /* HERO */
-
 .hero {
     max-width: 1000px;
     margin: 140px auto;
@@ -61,7 +60,6 @@ nav ul li a:hover {
 }
 
 /* BUTTON */
-
 .btn {
     padding: 14px 30px;
     background: black;
@@ -70,6 +68,7 @@ nav ul li a:hover {
     border: none;
     cursor: pointer;
     transition: 0.3s;
+    font-size: 15px;
 }
 
 .btn:hover {
@@ -78,7 +77,6 @@ nav ul li a:hover {
 }
 
 /* SECTIONS */
-
 .section {
     max-width: 1100px;
     margin: 140px auto;
@@ -96,7 +94,6 @@ nav ul li a:hover {
 }
 
 /* GRID */
-
 .grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -117,7 +114,6 @@ nav ul li a:hover {
 }
 
 /* PREVIEW */
-
 .preview {
     display: flex;
     align-items: center;
@@ -133,14 +129,17 @@ nav ul li a:hover {
 }
 
 /* CTA */
-
 .cta {
     text-align: center;
     margin: 180px 0;
 }
 
-/* FOOTER */
+.cta h2 {
+    font-size: 34px;
+    margin-bottom: 30px;
+}
 
+/* FOOTER */
 footer {
     text-align: center;
     padding: 50px;
@@ -150,7 +149,6 @@ footer {
 }
 
 /* RESPONSIVE */
-
 @media (max-width: 768px) {
     nav {
         padding: 20px;

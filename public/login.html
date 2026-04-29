@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>studyOS — Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: #f7f6f3;
+            color: #2f3437;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-wrapper {
+            display: flex;
+            width: 100%;
+            max-width: 900px;
+            min-height: 560px;
+            background: white;
+            border-radius: 24px;
+            border: 1px solid #ececec;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.07);
+            margin: 20px;
+        }
+
+        /* LEFT PANEL */
+        .login-left {
+            flex: 1;
+            background: #111;
+            color: white;
+            padding: 52px 44px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .brand {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .brand span { opacity: 0.4; }
+
+        .left-body { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+
+        .left-body h2 {
+            font-size: 32px;
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: 16px;
+        }
+
+        .left-body p {
+            font-size: 15px;
+            color: rgba(255,255,255,0.5);
+            line-height: 1.7;
+        }
+
+        .features-list {
+            margin-top: 36px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .feat {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .feat-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: white;
+            opacity: 0.5;
+            flex-shrink: 0;
+        }
+
+        .left-footer {
+            font-size: 12px;
+            color: rgba(255,255,255,0.25);
+        }
+
+        /* RIGHT PANEL */
+        .login-right {
+            flex: 1;
+            padding: 52px 44px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .form-head {
+            margin-bottom: 36px;
+        }
+
+        .form-head h3 {
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .form-head p {
+            font-size: 14px;
+            color: #888;
+        }
+
+        .tab-row {
+            display: flex;
+            gap: 0;
+            background: #f7f6f3;
+            border-radius: 10px;
+            padding: 4px;
+            margin-bottom: 28px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 9px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #888;
+            transition: 0.2s;
+        }
+
+        .tab-btn.active {
+            background: white;
+            color: #111;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 7px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1px solid #e4e4e4;
+            border-radius: 10px;
+            font-size: 14px;
+            background: #fafafa;
+            transition: 0.2s;
+            outline: none;
+            color: #2f3437;
+        }
+
+        input:focus {
+            border-color: #111;
+            background: white;
+        }
+
+        .forgot {
+            text-align: right;
+            margin-top: -10px;
+            margin-bottom: 18px;
+        }
+
+        .forgot a {
+            font-size: 12px;
+            color: #888;
+            text-decoration: none;
+        }
+
+        .forgot a:hover { color: #111; }
+
+        .btn-login {
+            width: 100%;
+            padding: 13px;
+            background: #111;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 20px 0;
+            color: #ccc;
+            font-size: 12px;
+        }
+
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #ececec;
+        }
+
+        .btn-guest {
+            width: 100%;
+            padding: 12px;
+            background: white;
+            color: #444;
+            border: 1px solid #e4e4e4;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-guest:hover {
+            background: #f7f6f3;
+            transform: translateY(-1px);
+        }
+
+        .error-msg {
+            font-size: 12px;
+            color: #d44c47;
+            margin-top: 6px;
+            display: none;
+        }
+
+        /* REGISTER FORM hidden by default */
+        #registerForm { display: none; }
+
+        @media (max-width: 640px) {
+            .login-left { display: none; }
+            .login-right { padding: 36px 28px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-wrapper">
+
+    <!-- LEFT -->
+    <div class="login-left">
+        <div class="brand">study<span>OS</span></div>
+        <div class="left-body">
+            <h2>Your academic<br>workspace awaits.</h2>
+            <p>Track attendance, manage tasks, and stay on top of your studies — all in one place.</p>
+            <div class="features-list">
+                <div class="feat"><div class="feat-dot"></div>Subject-wise attendance tracker</div>
+                <div class="feat"><div class="feat-dot"></div>Task & deadline management</div>
+                <div class="feat"><div class="feat-dot"></div>Pomodoro focus timer</div>
+                <div class="feat"><div class="feat-dot"></div>Analytics & grade prediction</div>
+            </div>
+        </div>
+        <div class="left-footer">© 2026 Yash Soren · studyOS</div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="login-right">
+        <div class="form-head">
+            <h3>Welcome back</h3>
+            <p>Sign in to continue to your dashboard</p>
+        </div>
+
+        <!-- TABS -->
+        <div class="tab-row">
+            <button class="tab-btn active" id="tabLogin" onclick="switchTab('login')">Sign In</button>
+            <button class="tab-btn" id="tabRegister" onclick="switchTab('register')">Sign Up</button>
+        </div>
+
+        <!-- LOGIN FORM -->
+        <div id="loginForm">
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="loginEmail" placeholder="you@example.com" />
+                <div class="error-msg" id="loginError">Invalid email or password.</div>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="loginPassword" placeholder="••••••••" />
+            </div>
+            <div class="forgot"><a href="#">Forgot password?</a></div>
+            <button class="btn-login" onclick="handleLogin()">Sign In →</button>
+            <div class="divider">or</div>
+            <button class="btn-guest" onclick="window.location.href='app.html'">Continue as Guest 👤</button>
+        </div>
+
+        <!-- REGISTER FORM -->
+        <div id="registerForm">
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="regName" placeholder="Yash Soren" />
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="regEmail" placeholder="you@example.com" />
+                <div class="error-msg" id="regError">Please fill in all fields.</div>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="regPassword" placeholder="Min. 6 characters" />
+            </div>
+            <button class="btn-login" onclick="handleRegister()">Create Account →</button>
+            <div class="divider">or</div>
+            <button class="btn-guest" onclick="window.location.href='app.html'">Continue as Guest 👤</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_BASE = window.location.protocol === 'file:' ? 'http://localhost:5050/api' : `${window.location.origin}/api`;
+
+    function switchTab(tab) {
+        document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
+        document.getElementById('registerForm').style.display = tab === 'register' ? 'block' : 'none';
+        document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
+        document.getElementById('tabRegister').classList.toggle('active', tab === 'register');
+    }
+
+    function saveSession(data) {
+        localStorage.setItem('studyos_token', data.token);
+        localStorage.setItem('studyos_loggedin', JSON.stringify(data.user));
+    }
+
+    async function requestAuth(path, payload) {
+        const res = await fetch(`${API_BASE}${path}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+            throw new Error(data.message || 'Something went wrong');
+        }
+
+        return data;
+    }
+
+    async function handleLogin() {
+        const email = document.getElementById('loginEmail').value.trim();
+        const pass = document.getElementById('loginPassword').value;
+        const err = document.getElementById('loginError');
+
+        if (!email || !pass) {
+            err.textContent = 'Please enter your email and password.';
+            err.style.display = 'block';
+            return;
+        }
+
+        try {
+            const data = await requestAuth('/auth/login', { email, password: pass });
+            err.style.display = 'none';
+            saveSession(data);
+            window.location.href = 'app.html';
+        } catch (error) {
+            err.textContent = error.message;
+            err.style.display = 'block';
+        }
+    }
+
+    async function handleRegister() {
+        const name = document.getElementById('regName').value.trim();
+        const email = document.getElementById('regEmail').value.trim();
+        const pass = document.getElementById('regPassword').value;
+        const err = document.getElementById('regError');
+
+        if (!name || !email || !pass) {
+            err.textContent = 'Please fill in all fields.';
+            err.style.display = 'block';
+            return;
+        }
+        if (pass.length < 6) {
+            err.textContent = 'Password must be at least 6 characters.';
+            err.style.display = 'block';
+            return;
+        }
+
+        try {
+            const data = await requestAuth('/auth/register', { name, email, password: pass });
+            err.style.display = 'none';
+            saveSession(data);
+            window.location.href = 'app.html';
+        } catch (error) {
+            err.textContent = error.message;
+            err.style.display = 'block';
+        }
+    }
+
+    // Enter key support
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+            const active = document.getElementById('loginForm').style.display !== 'none' ? 'login' : 'register';
+            active === 'login' ? handleLogin() : handleRegister();
+        }
+    });
+</script>
+</body>
+</html>
