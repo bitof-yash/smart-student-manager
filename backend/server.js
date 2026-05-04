@@ -13,6 +13,13 @@ const PORT = process.env.PORT || 5050;
 const JWT_SECRET = process.env.JWT_SECRET || 'studyos-dev-secret';
 const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/studyos';
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
+const GEMINI_PRIMARY_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+const GEMINI_FALLBACK_MODELS = (process.env.GEMINI_FALLBACK_MODELS || '')
+  .split(',')
+  .map((item) => item.trim())
+  .filter(Boolean);
+const GEMINI_MODELS = [GEMINI_PRIMARY_MODEL, ...GEMINI_FALLBACK_MODELS];
+const GEMINI_MAX_RETRIES = Math.max(0, Number(process.env.GEMINI_MAX_RETRIES || 2));
 const DAILY_TIMETABLE_SCAN_LIMIT = 5;
 let mongoConnectPromise = null;
 
@@ -240,6 +247,71 @@ function cleanGeminiJson(raw = '') {
   }
 }
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function isGeminiBusy(status, message = '') {
+  const text = String(message).toLowerCase();
+  return status === 429 || status === 503 || text.includes('high demand') || text.includes('overloaded') || text.includes('rate limit');
+}
+
+async function requestGeminiTimetable(imageBase64, prompt) {
+  let lastError = null;
+
+  for (const model of GEMINI_MODELS) {
+    for (let attempt = 0; attempt <= GEMINI_MAX_RETRIES; attempt += 1) {
+      const geminiResponse = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  { text: prompt },
+                  { inline_data: { mime_type: 'image/jpeg', data: imageBase64 } }
+                ]
+              }
+            ],
+            generationConfig: { temperature: 0, maxOutputTokens: 16384 }
+          })
+        }
+      );
+
+      if (geminiResponse.ok) {
+        return geminiResponse.json();
+      }
+
+      const errorBody = await geminiResponse.json().catch(() => ({}));
+      const providerMessage = errorBody.error?.message || 'Gemini request failed';
+      lastError = {
+        status: geminiResponse.status,
+        message: providerMessage,
+        model
+      };
+
+      if (isGeminiBusy(geminiResponse.status, providerMessage) && attempt < GEMINI_MAX_RETRIES) {
+        await sleep(700 * (attempt + 1));
+        continue;
+      }
+
+      if (!isGeminiBusy(geminiResponse.status, providerMessage)) {
+        const error = new Error(providerMessage);
+        error.status = 502;
+        throw error;
+      }
+
+      break;
+    }
+  }
+
+  const busyError = new Error('AI service is busy right now. Please try again in a minute.');
+  busyError.status = isGeminiBusy(lastError?.status, lastError?.message) ? 503 : 502;
+  throw busyError;
+}
+
 async function connectToDatabase() {
   if (mongoose.connection.readyState === 1) {
     return mongoose.connection;
@@ -379,31 +451,7 @@ app.post('/api/timetable/extract', auth, async (req, res) => {
 
     const prompt = 'Extract all classes from this timetable image. You must respond with ONLY a raw JSON array. No text before or after. No markdown. No code fences. No backticks. Begin your entire response with [ and end with ]. Each object must have: subject, day (one of: Mon Tue Wed Thu Fri Sat), start (24h format like 09:00), end (24h format), room. Example: [{"subject":"Math","day":"Mon","start":"09:00","end":"10:00","room":"A101"}]. Extract every single class now:';
 
-    const geminiResponse = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                { text: prompt },
-                { inline_data: { mime_type: 'image/jpeg', data: imageBase64 } }
-              ]
-            }
-          ],
-          generationConfig: { temperature: 0, maxOutputTokens: 16384 }
-        })
-      }
-    );
-
-    if (!geminiResponse.ok) {
-      const errorBody = await geminiResponse.json().catch(() => ({}));
-      return res.status(502).json({ message: errorBody.error?.message || 'Gemini request failed' });
-    }
-
-    const geminiData = await geminiResponse.json();
+    const geminiData = await requestGeminiTimetable(imageBase64, prompt);
     const raw = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || '';
     const classes = cleanGeminiJson(raw);
 
@@ -420,7 +468,7 @@ app.post('/api/timetable/extract', auth, async (req, res) => {
     });
   } catch (error) {
     console.error('Timetable extract error:', error);
-    res.status(500).json({ message: error.message || 'Unable to extract timetable right now' });
+    res.status(error.status || 500).json({ message: error.message || 'Unable to extract timetable right now' });
   }
 });
 
