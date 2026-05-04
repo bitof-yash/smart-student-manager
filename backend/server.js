@@ -14,7 +14,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'studyos-dev-secret';
 const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/studyos';
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 const GEMINI_PRIMARY_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
-const GEMINI_FALLBACK_MODELS = (process.env.GEMINI_FALLBACK_MODELS || '')
+const GEMINI_FALLBACK_MODELS = (process.env.GEMINI_FALLBACK_MODELS || 'gemini-2.0-flash,gemini-2.0-flash-001')
   .split(',')
   .map((item) => item.trim())
   .filter(Boolean);
