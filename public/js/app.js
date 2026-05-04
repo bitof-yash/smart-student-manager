@@ -52,7 +52,7 @@ function isAuthenticated() {
 }
 
 function serializeId(id) {
-  return JSON.stringify(String(id));
+  return `'${String(id).replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
 }
 
 function normalizeCollection(items, prefix) {
